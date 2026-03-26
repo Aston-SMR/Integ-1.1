@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
+<title>Baccarat System 2.0 + 紅藍平衡</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Baccarat">
+<meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=LsyGE8ds_N_OAdUhKijdki8xaBT44XEKfZ64qoK9nB_I7otgPe_LWRBxWBBqOhYDK6GXtEkV2kn33ksW7zlWSGpdwM857V2OPyKuum---snlMijxPatfKf9DETIYI4mfUR90Ox4N5jMhDbjw5l3ictTj-hlbzOgaEAxvETmShCoCk2hVkscyFiHlN9-Nl7B4pwXU8TuaNpgmT_gCJLuUfCmrLhD198nfQ8QEfrzcFMNi5WVL50jWWDnQBaZPYucodo9QCDJ7qcgHW2LFt1TlRw" charset="UTF-8"></script><style>
+:root{
+--bg:#000;
+--panel:#0b1220;
+--panel2:#131b27;
+--border:#d8deea;
+--text:#1f2937;
+--muted:#6b7280;
+--player-bg:#eef5ff;
+--player-border:#93c5fd;
+--banker-bg:#fff1f2;
+--banker-border:#fda4af;
+--active:#fff7cc;
+--active-border:#f59e0b;
+--blue:#2563eb;
+--red:#dc2626;
+--green:#059669;
+--orange:#f97316;
+--purple:#7c3aed;
+--teal:#0f766e;
+--soft:#eef2f7;
+--soft-border:#cbd5e1;
+--blue-soft:#dbeafe;
+--red-soft:#fee2e2;
+--green-soft:#dcfce7;
+--orange-soft:#ffedd5;
+--purple-soft:#ede9fe;
+--teal-soft:#ccfbf1;
+--rb-bg:#131b27;
+--rb-border:#27344c;
+--rb-box:#07101e;
+--rb-box2:#09111f;
+--rb-text:#dce5f1;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);font-family:Arial,"Microsoft JhengHei",sans-serif;}
+body{padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)}
+.container{max-width:980px;margin:0 auto;padding:12px}
+.logo-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.logo{display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px solid #2a2a2a;border-radius:16px;background:linear-gradient(180deg,#0f172a 0%, #111827 100%);box-shadow:0 10px 30px rgba(0,0,0,.35)}
+.logo-mark{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:22px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--red))}
+.logo-text{line-height:1.05}
+.logo-title{color:#fff;font-size:20px;font-weight:900}
+.logo-sub{color:#94a3b8;font-size:11px;font-weight:700;margin-top:3px;letter-spacing:1.6px}
+.top-box{display:flex;gap:12px}
+.side{flex:1;border-radius:16px;padding:12px;border:2px solid transparent}
+.player-side{background:var(--player-bg);border-color:var(--player-border)}
+.banker-side{background:var(--banker-bg);border-color:var(--banker-border)}
+.title{font-size:18px;font-weight:700;text-align:center;margin-bottom:10px}
+.sub-title{display:block;font-size:12px;color:var(--muted);font-weight:600;margin-top:3px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cell{height:62px;border:2px solid #d6dce8;border-radius:14px;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;cursor:pointer;user-select:none}
+.cell.empty::after{font-size:12px;font-weight:600;color:#94a3b8}
+.cell.p1.empty::after{content:'P1'} .cell.p2.empty::after{content:'P2'} .cell.p3.empty::after{content:'P3'}
+.cell.b1.empty::after{content:'B1'} .cell.b2.empty::after{content:'B2'} .cell.b3.empty::after{content:'B3'}
+.span2{grid-column:1 / span 2}
+.active{background:var(--active);border-color:var(--active-border);box-shadow:0 0 0 3px rgba(245,158,11,.15)}
+.card{margin-top:12px;background:linear-gradient(180deg,#fff 0%,#f8fafc 100%);border:1px solid var(--border);border-radius:18px;padding:12px;box-shadow:0 8px 24px rgba(15,23,42,.08)}
+.row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.score-main,.control-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.round-wrap{display:flex;align-items:center;gap:6px;padding:6px 10px;border:1px solid var(--soft-border);background:#f8fafc;border-radius:10px}
+.label{font-size:12px;font-weight:700;color:#64748b}
+.round-input{width:78px;border:1px solid #cbd5e1;border-radius:8px;padding:6px 8px;font-size:14px}
+.score-badge{min-width:92px;padding:8px 12px;border-radius:999px;font-size:15px;font-weight:700;text-align:center;background:#eef2ff}
+.score-badge.player{color:var(--blue)}
+.score-badge.banker{color:var(--red);background:#fff1f2}
+.winner-text{font-size:24px;font-weight:800}
+.winner-player{color:var(--blue)} .winner-banker{color:var(--red)} .winner-tie{color:var(--green)}
+.btn{border:1px solid var(--soft-border);background:var(--soft);color:#475569;border-radius:10px;padding:7px 10px;font-size:13px;font-weight:700;cursor:pointer}
+.btn-next{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.btn-history{background:#fff1f2;color:#b91c1c;border-color:#fecdd3}
+.detail-text{margin-top:8px;font-size:14px;line-height:1.45;color:#334155}
+.buttons{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;width:100%}
+button.key{border:1px solid #cfd8e3;background:#fff;border-radius:12px;padding:10px 4px;font-size:15px;font-weight:700;color:#111827;cursor:pointer;min-height:46px}
+.skip-key{background:#f3f4f6 !important;color:#4b5563 !important}
+.pro-grid{display:grid;grid-template-columns:1fr;gap:8px;margin-top:10px}
+.line-row{font-size:24px;font-weight:900;line-height:1.4;word-break:break-word}
+.line-sub{font-size:13px;color:#334155;line-height:1.35;word-break:break-word}
+.s-label{color:var(--blue)} .m-label{color:var(--red)} .t-label{color:var(--green)} .r-label{color:var(--orange)} .x-label{color:var(--teal)} .c-label{color:var(--purple)} .rb-label{color:#1d4ed8} .rb2-label{color:#e11d48} .mix-label{color:#0f766e}
+.stats-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px}
+.stats-row.rb-stats{grid-template-columns:repeat(3,minmax(0,1fr));margin-top:8px}
+.stat-box{border-radius:12px;padding:8px 6px;text-align:center;border:1px solid #e5e7eb;background:#fff;position:relative}
+.stat-name{font-size:11px;font-weight:800;color:#64748b;margin-bottom:4px}
+.stat-rate{font-size:15px;font-weight:900;line-height:1}
+.stat-blue .stat-rate{color:var(--blue)} .stat-red .stat-rate{color:var(--red)} .stat-green .stat-rate{color:var(--green)} .stat-orange .stat-rate{color:var(--orange)} .stat-teal .stat-rate{color:var(--teal)} .stat-purple .stat-rate{color:var(--purple)} .stat-rb .stat-rate{color:#1d4ed8} .stat-rb2 .stat-rate{color:#e11d48} .stat-mix .stat-rate{color:#0f766e}
+.rate-strong{box-shadow:0 0 0 2px rgba(245,158,11,.18);border-color:#fcd34d} .rate-mid{box-shadow:0 0 0 2px rgba(59,130,246,.10)} .rate-low{opacity:.78}
+.best-stat{box-shadow:0 0 0 3px rgba(245,158,11,.22), 0 8px 16px rgba(245,158,11,.12);border-color:#f59e0b !important}
+.split-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:12px;align-items:start}
+.rb-card{background:var(--rb-bg);border-color:var(--rb-border);color:#fff}
+.rb-title{color:#fff;font-weight:900;font-size:18px;margin-bottom:8px;text-align:center}
+.rb-section-title{font-size:13px;font-weight:800;color:#d8dfeb;margin:1px 0 7px}
+.dots{display:grid;grid-template-columns:repeat(3,1fr);gap:5px}
+.dot-box{background:var(--rb-box2);border:1px solid #253453;border-radius:12px;padding:5px 4px;text-align:center}
+.dot-label{font-size:11px;font-weight:800;color:#d6ddeb;margin-bottom:4px}
+.dot-view{width:26px;height:26px;border-radius:50%;background:#2d3748;border:2px solid #41506b;margin:0 auto 5px}
+.dot-view.red{background:#e53935;border-color:#ffb0ad}
+.dot-view.blue{background:#1e88e5;border-color:#add6ff}
+.btn-row{display:flex;gap:3px;justify-content:center}
+.rb-card button{border:none;border-radius:9px;font-weight:900;cursor:pointer;color:#fff;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.red-btn{background:#e53935;padding:6px 7px;font-size:11px}
+.blue-btn{background:#1e88e5;padding:6px 7px;font-size:11px}
+.gray-btn,.orange-btn{padding:7px 9px;font-size:11px}
+.gray-btn{background:#636c7b} .orange-btn{background:#f59e0b}
+.mini-btns{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px}
+.predict-grid,.stats-grid2{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.predict-box,.stat-box-dark,.memory-item,.history-item-dark,.history-predict-box{background:var(--rb-box);border:1px solid #263453;border-radius:12px}
+.predict-box,.stat-box-dark{padding:7px;min-height:104px}
+.predict-box h3,.stat-box-dark h3{margin:0 0 4px;font-size:12px;font-weight:900;color:#fff}
+.predict-line,.stat-line{font-size:10.5px;line-height:1.25;color:#dde5f1;margin:2px 0}
+.result-pill{display:inline-block;min-width:56px;text-align:center;padding:5px 8px;border-radius:999px;font-size:10.5px;font-weight:900;margin-top:5px}
+.result-red{background:#e53935} .result-blue{background:#1e88e5} .result-none{background:#6b7280}
+.actual-card{padding:7px}
+.actual-inline{display:flex;align-items:center;justify-content:space-between;gap:6px;flex-wrap:nowrap}
+.actual-text{font-size:10.5px;font-weight:800;color:#eef3fb;line-height:1.25;flex:1;min-width:0}
+.actual-btns{display:flex;gap:5px;flex-shrink:0}
+.actual-btns .red-btn,.actual-btns .blue-btn{padding:7px 9px;font-size:11px}
+.memory-list{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.memory-item{padding:5px 4px;min-height:34px;display:flex;align-items:center;justify-content:center;gap:2px;overflow:hidden}
+.memory-left{font-size:9.5px;font-weight:900;letter-spacing:0;white-space:nowrap;flex-shrink:1;min-width:0;color:#fff}
+.memory-arrow{font-size:9px;color:#dbe4f2;font-weight:900;flex-shrink:0}
+.memory-right{font-size:9px;font-weight:900;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;flex-shrink:1;min-width:0}
+.m-red{color:#ff7f7f} .m-blue{color:#76b9ff} .m-na{color:#f5b942}
+.history-list{margin-top:10px;max-height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:8px}
+.history-empty{color:var(--muted);font-size:14px;padding:8px 0}
+.history-item{border:1px solid var(--border);border-radius:14px;padding:10px;background:#fff;position:relative}
+.history-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.history-main{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;flex:1 1 auto;min-width:0;padding-right:100px}
+.history-cards{font-size:13px;line-height:1.45;min-width:116px}
+.history-smr{color:#94a3b8;font-size:12px;line-height:1.3;display:flex;gap:8px;flex-wrap:wrap;flex:1 1 auto;min-width:0}
+.history-smr>div{padding:4px 8px;border:1px solid #e2e8f0;border-radius:10px;background:#f8fafc;white-space:nowrap}
+.history-result{font-size:13px;font-weight:800;border-radius:999px;padding:6px 10px;background:#f8fafc;flex:0 0 auto;position:absolute;top:10px;right:10px}
+.hit{color:#166534;background:#dcfce7} .miss{color:#b91c1c;background:#fee2e2} .draw{color:#6b7280;background:#f3f4f6}
+.status-hit{color:#166534;font-weight:700} .status-miss{color:#b91c1c;font-weight:700} .status-draw{color:#6b7280;font-weight:700}
+.history-list-dark{display:flex;flex-direction:column;gap:6px;max-height:340px;overflow-y:auto}
+.history-item-dark{padding:7px}
+.history-top-dark{display:flex;justify-content:space-between;align-items:center;gap:5px;margin-bottom:5px;flex-wrap:nowrap;overflow:hidden}
+.history-top-left-dark{display:flex;align-items:center;gap:5px;min-width:0;flex-wrap:nowrap;overflow:hidden}
+.round-badge,.pattern-badge{font-size:12px;font-weight:900;white-space:nowrap}
+.round-badge{color:#ffd166}
+.pattern-badge{color:#ffffff;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.actual-badge{font-size:10.5px;font-weight:900;white-space:nowrap;padding:2px 7px;border-radius:999px;flex-shrink:0}
+.actual-badge.red{background:rgba(229,57,53,.18);color:#ff9a96;border:1px solid rgba(229,57,53,.45)}
+.actual-badge.blue{background:rgba(30,136,229,.18);color:#8ec8ff;border:1px solid rgba(30,136,229,.45)}
+.history-predict-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.history-predict-box{padding:6px 7px;min-height:44px;display:flex;flex-direction:column;justify-content:center;overflow:hidden}
+.hp-title{font-size:11px;font-weight:900;margin-bottom:2px;color:#dce4ef;line-height:1.15}
+.hp-line{font-size:11px;line-height:1.18;color:#edf2fb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ok{color:#22c55e;font-weight:900} .bad{color:#ef4444;font-weight:900} .na{color:#f59e0b;font-weight:900}
+.empty-box{background:#07101e;border:1px solid #263453;border-radius:12px;padding:12px;font-size:12px;color:#eef3fb}
+.integrate-box{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+.integrate-mini{border:1px solid #d1d5db;border-radius:12px;padding:8px;background:#fff}
+.integrate-mini .t1{font-size:12px;font-weight:800;color:#64748b}
+.integrate-mini .t2{font-size:17px;font-weight:900;margin-top:3px}
+.integrate-mini .t3{font-size:11px;color:#475569;margin-top:4px;line-height:1.35}
+.blue-text{color:var(--blue)} .red-text{color:var(--red)} .green-text{color:var(--green)} .orange-text{color:var(--orange)} .purple-text{color:var(--purple)} .gray-text{color:#6b7280}
+@media (max-width:820px){
+.container{padding:8px}
+.top-box,.split-grid{grid-template-columns:1fr;display:grid}
+.stats-row{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (max-width:500px){
+.container{padding:6px}
+.logo{padding:8px 10px;border-radius:14px} .logo-mark{width:34px;height:34px;font-size:18px;border-radius:10px} .logo-title{font-size:16px} .logo-sub{font-size:9px}
+.top-box{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.side{padding:8px 6px;border-radius:12px}
+.title{font-size:14px;margin-bottom:6px}.sub-title{font-size:10px}
+.grid{gap:6px}.cell{height:46px;font-size:17px;border-radius:10px}.cell.empty::after{font-size:10px}
+.card{margin-top:10px;padding:10px;border-radius:14px}
+.winner-text{font-size:16px}.score-badge{min-width:64px;font-size:11px;padding:5px 7px}.detail-text{font-size:11px}
+.round-wrap{padding:4px 6px;gap:4px;border-radius:8px}.label{font-size:11px}.round-input{width:54px;font-size:11px;padding:4px 5px}
+button.key{min-height:36px;padding:6px 2px;font-size:11px;border-radius:9px}
+.btn,.btn-next,.btn-history{padding:5px 7px;font-size:11px;border-radius:8px}
+.line-row{font-size:17px;line-height:1.35}.line-sub{font-size:10px;line-height:1.25}
+.stats-row{gap:3px;grid-template-columns:repeat(3,minmax(0,1fr))}.stat-box{border-radius:10px;padding:6px 3px}.stat-name{font-size:8px}.stat-rate{font-size:11px}
+.history-list{margin-top:8px;max-height:280px;gap:6px}.history-item{padding:9px;border-radius:12px}.history-top{gap:4px}.history-main{width:100%;gap:6px;flex-direction:column;align-items:stretch;padding-right:0;padding-top:22px}.history-cards{font-size:12px;line-height:1.28;min-width:0}
+.history-smr{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:2px;font-size:9px;line-height:1.08;width:100%}.history-smr>div{min-width:0;text-align:center;padding:4px 2px;border-radius:7px;white-space:nowrap;overflow:hidden}
+.history-result{top:8px;right:8px;font-size:11px;padding:5px 8px}
+.rb-title{font-size:16px}.predict-box,.stat-box-dark{min-height:96px}.predict-line,.stat-line,.actual-text{font-size:10px}
+.memory-left{font-size:9px}.memory-right{font-size:8.5px}.memory-item{padding:5px 3px}.round-badge,.pattern-badge{font-size:11.5px}.hp-title,.hp-line{font-size:10.5px}
+.integrate-box{grid-template-columns:1fr}.history-predict-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo-wrap">
+    <div class="logo">
+      <div class="logo-mark">B</div>
+      <div class="logo-text">
+        <div class="logo-title">Baccarat</div>
+        <div class="logo-sub">SYSTEM 2.0 + RED/BLUE</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="top-box">
+    <div class="side player-side">
+      <div class="title">PLAYER<span class="sub-title">閒家</span></div>
+      <div class="grid">
+        <div class="cell empty p1" data-index="0"></div>
+        <div class="cell empty p2" data-index="1"></div>
+        <div class="cell empty p3 span2" data-index="4"></div>
+      </div>
+    </div>
+    <div class="side banker-side">
+      <div class="title">BANKER<span class="sub-title">莊家</span></div>
+      <div class="grid">
+        <div class="cell empty b1" data-index="2"></div>
+        <div class="cell empty b2" data-index="3"></div>
+        <div class="cell empty b3 span2" data-index="5"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row">
+      <div class="score-main">
+        <div class="score-badge player" id="playerScore">閒 0</div>
+        <div class="score-badge banker" id="bankerScore">莊 0</div>
+        <div class="winner-text winner-tie" id="winnerText">和局</div>
+      </div>
+      <div class="control-row">
+        <div class="round-wrap">
+          <span class="label">局數</span>
+          <input class="round-input" id="roundInput" type="number" min="1" step="1">
+        </div>
+        <button class="btn btn-next" type="button" id="nextBtn">下一局</button>
+        <button class="btn" type="button" id="clearBoardBtn">清除本局</button>
+      </div>
+    </div>
+    <div class="detail-text">
+      <div class="label">判斷資訊</div>
+      <div id="detailText">請先輸入局數，再依序輸入牌面</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="label">牌面鍵</div>
+    <div class="buttons" id="cardButtons">
+      <button class="key" type="button" data-card="A">A</button>
+      <button class="key" type="button" data-card="2">2</button>
+      <button class="key" type="button" data-card="3">3</button>
+      <button class="key" type="button" data-card="4">4</button>
+      <button class="key" type="button" data-card="5">5</button>
+      <button class="key" type="button" data-card="6">6</button>
+      <button class="key" type="button" data-card="7">7</button>
+      <button class="key" type="button" data-card="8">8</button>
+      <button class="key" type="button" data-card="9">9</button>
+      <button class="key" type="button" data-card="10">10</button>
+      <button class="key" type="button" data-card="J">J</button>
+      <button class="key" type="button" data-card="Q">Q</button>
+      <button class="key" type="button" data-card="K">K</button>
+      <button class="key skip-key" type="button" id="skipBtn">不補</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="row"><div><div class="label">專業版分析</div></div></div>
+    <div class="pro-grid">
+      <div id="linePredict" class="line-row">S:- M:- T:- R:- X:- C:-</div>
+      <div id="linePredictMeta" class="line-sub">S分數:-｜M點差:-/公牌:-｜T真數:-/建議:-｜R尾數:-/翻邊:-｜X差值:-｜C補強:-</div>
+      <div id="lineStats" class="stats-row">
+        <div class="stat-box stat-blue"><div class="stat-name">S勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-red"><div class="stat-name">M勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-green"><div class="stat-name">T勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-orange"><div class="stat-name">R勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-teal"><div class="stat-name">X勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-purple"><div class="stat-name">C勝率</div><div class="stat-rate">0%</div></div>
+      </div>
+      <div id="rbLinePredict" class="line-sub">RB1: - ｜ RB2: - ｜ RB綜合: - ｜ 整合建議: -</div>
+      <div id="rbLineStats" class="stats-row rb-stats">
+        <div class="stat-box stat-rb"><div class="stat-name">RB1勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-rb2"><div class="stat-name">RB2勝率</div><div class="stat-rate">0%</div></div>
+        <div class="stat-box stat-mix"><div class="stat-name">整合勝率</div><div class="stat-rate">0%</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="split-grid">
+    <div>
+      <div class="card">
+        <div class="row">
+          <div>
+            <div class="label">歷史紀錄</div>
+            <div style="font-size:13px;color:#475569;">最新在最上，可下拉查看</div>
+          </div>
+          <button class="btn btn-history" type="button" id="clearHistoryBtn">清除歷史</button>
+        </div>
+        <div class="history-list" id="historyList"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card rb-card">
+        <div class="rb-title">紅藍平衡模組</div>
+
+        <div class="rb-section-title">三個點點</div>
+        <div class="dots">
+          <div class="dot-box">
+            <div class="dot-label">點1</div>
+            <div id="dotView0" class="dot-view"></div>
+            <div class="btn-row">
+              <button class="red-btn" type="button" data-dot="0" data-val="R">紅</button>
+              <button class="blue-btn" type="button" data-dot="0" data-val="B">藍</button>
+            </div>
+          </div>
+          <div class="dot-box">
+            <div class="dot-label">點2</div>
+            <div id="dotView1" class="dot-view"></div>
+            <div class="btn-row">
+              <button class="red-btn" type="button" data-dot="1" data-val="R">紅</button>
+              <button class="blue-btn" type="button" data-dot="1" data-val="B">藍</button>
+            </div>
+          </div>
+          <div class="dot-box">
+            <div class="dot-label">點3</div>
+            <div id="dotView2" class="dot-view"></div>
+            <div class="btn-row">
+              <button class="red-btn" type="button" data-dot="2" data-val="R">紅</button>
+              <button class="blue-btn" type="button" data-dot="2" data-val="B">藍</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mini-btns">
+          <button class="gray-btn" type="button" id="rbClearCurrentBtn">清除本次三點</button>
+        </div>
+
+        <div class="card rb-card" style="margin-top:8px;padding:0;border:none;box-shadow:none;background:transparent;">
+          <div class="rb-section-title">本次預測</div>
+          <div class="predict-grid">
+            <div class="predict-box">
+              <h3>紀錄1：紅藍平衡</h3>
+              <div class="predict-line">紅多→打紅</div>
+              <div class="predict-line">藍多→打藍</div>
+              <div class="predict-line">目前三點：<span id="patternText1">-</span></div>
+              <div id="pred1" class="result-pill result-none">未完成</div>
+            </div>
+            <div class="predict-box">
+              <h3>紀錄2：同組合記憶</h3>
+              <div class="predict-line">同組合遇過</div>
+              <div class="predict-line">顯示上次後面開什麼</div>
+              <div class="predict-line">目前三點：<span id="patternText2">-</span></div>
+              <div id="pred2" class="result-pill result-none">尚無紀錄</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rb-card actual-card" style="margin-top:8px;padding:7px;">
+          <div class="rb-section-title">本次實際結果</div>
+          <div class="actual-inline">
+            <div class="actual-text">三點完成後，按下下把實際開出的顏色</div>
+            <div class="actual-btns">
+              <button class="red-btn" type="button" id="rbActualRedBtn">實際紅</button>
+              <button class="blue-btn" type="button" id="rbActualBlueBtn">實際藍</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="integrate-box">
+          <div class="integrate-mini">
+            <div class="t1">RB 綜合</div>
+            <div class="t2" id="rbMixPick">-</div>
+            <div class="t3" id="rbMixMeta">RB1 / RB2 綜合判斷</div>
+          </div>
+          <div class="integrate-mini">
+            <div class="t1">整合建議</div>
+            <div class="t2" id="finalMixPick">-</div>
+            <div class="t3" id="finalMixMeta">用 C + RB 綜合顯示</div>
+          </div>
+        </div>
+
+        <div class="card rb-card" style="margin-top:8px;padding:0;border:none;box-shadow:none;background:transparent;">
+          <div class="rb-section-title">統計</div>
+          <div class="stats-grid2">
+            <div class="stat-box-dark">
+              <h3>紀錄1：紅藍平衡</h3>
+              <div class="stat-line">總次數：<span id="stat1Total">0</span></div>
+              <div class="stat-line">命中：<span id="stat1Hit">0</span></div>
+              <div class="stat-line">失敗：<span id="stat1Miss">0</span></div>
+              <div class="stat-line">命中率：<span id="stat1Rate">0%</span></div>
+            </div>
+            <div class="stat-box-dark">
+              <h3>紀錄2：同組合記憶</h3>
+              <div class="stat-line">有預測次數：<span id="stat2Total">0</span></div>
+              <div class="stat-line">命中：<span id="stat2Hit">0</span></div>
+              <div class="stat-line">失敗：<span id="stat2Miss">0</span></div>
+              <div class="stat-line">命中率：<span id="stat2Rate">0%</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card rb-card" style="margin-top:8px;padding:0;border:none;box-shadow:none;background:transparent;">
+          <div class="rb-section-title">八種組合記憶表（上次此組合後面開什麼）</div>
+          <div id="memoryGrid" class="memory-list"></div>
+        </div>
+
+        <div class="card rb-card" style="margin-top:8px;padding:0;border:none;box-shadow:none;background:transparent;">
+          <div class="row" style="margin-bottom:7px;">
+            <div class="rb-section-title" style="margin:0;">紅藍歷史紀錄（最新在上面）</div>
+            <button class="orange-btn" type="button" id="rbClearHistoryBtn">清空全部紀錄</button>
+          </div>
+          <div id="rbHistoryList" class="history-list-dark"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+const STORAGE_KEY = 'baccarat_system_2_0_redblue_integrated_v1';
+const state = {
+  baccarat: {
+    values: ['', '', '', '', '', ''],
+    order: [0,1,2,3,4,5],
+    currentStep: 0,
+    selectedIndex: null,
+    historyData: [],
+    pendingPrediction: null,
+    resolvedRounds: [],
+    roundInput: ''
+  },
+  redBlue: {
+    currentDots: [null, null, null],
+    history: [],
+    patternMemory: {RRR:null, RRB:null, RBR:null, RBB:null, BRR:null, BRB:null, BBR:null, BBB:null}
+  }
+};
+
+const cells = Array.from(document.querySelectorAll('.cell'));
+const roundInputEl = document.getElementById('roundInput');
+const cardButtonsEl = document.getElementById('cardButtons');
+const nextBtn = document.getElementById('nextBtn');
+const clearBoardBtn = document.getElementById('clearBoardBtn');
+const skipBtn = document.getElementById('skipBtn');
+const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+const playerScoreEl = document.getElementById('playerScore');
+const bankerScoreEl = document.getElementById('bankerScore');
+const winnerTextEl = document.getElementById('winnerText');
+const detailTextEl = document.getElementById('detailText');
+const linePredictEl = document.getElementById('linePredict');
+const linePredictMetaEl = document.getElementById('linePredictMeta');
+const lineStatsEl = document.getElementById('lineStats');
+const historyListEl = document.getElementById('historyList');
+const rbLinePredictEl = document.getElementById('rbLinePredict');
+const rbLineStatsEl = document.getElementById('rbLineStats');
+
+function saveToStorage(){
+  state.baccarat.roundInput = roundInputEl.value || '';
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+function loadFromStorage(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const data = JSON.parse(raw);
+    if(data && data.baccarat && data.redBlue){
+      Object.assign(state.baccarat, data.baccarat || {});
+      Object.assign(state.redBlue, data.redBlue || {});
+    }
+  }catch(e){console.error(e)}
+}
+
+function getPickValueHtml(p) {
+  if (p === '閒') return '<span style="color:#2563eb;font-weight:900;">閒</span>';
+  if (p === '莊') return '<span style="color:#dc2626;font-weight:900;">莊</span>';
+  if (p === '紅') return '<span style="color:#dc2626;font-weight:900;">紅</span>';
+  if (p === '藍') return '<span style="color:#2563eb;font-weight:900;">藍</span>';
+  return '<span style="color:#6b7280;font-weight:900;">' + (p || '-') + '</span>';
+}
+function colorPick(name, p, klass) { return '<span class="' + klass + '">' + name + ':</span>' + getPickValueHtml(p); }
+function getStatTierClass(rate){ if(rate >= 60) return 'rate-strong'; if(rate >= 45) return 'rate-mid'; return 'rate-low'; }
+function getRoundNumber(){ const n = parseInt(roundInputEl.value, 10); return Number.isFinite(n) && n > 0 ? n : null; }
+function getDecksByRound(roundNo){ if (roundNo === null) return null; if (roundNo <= 10) return 8; if (roundNo <= 20) return 7; if (roundNo <= 30) return 6; if (roundNo <= 40) return 5; if (roundNo <= 50) return 4; return 3; }
+function getValue(card){ if(!card) return 0; if(card === 'A') return 1; if(['10','J','Q','K'].includes(card)) return 0; return parseInt(card,10) || 0; }
+function getTrueCountWeight(card){ if(!card) return 0; if(['A','2','7','8','9'].includes(card)) return 1; if(['3','4','5','6'].includes(card)) return -1; return 0; }
+function getCards(arr){ return arr.filter(Boolean); }
+function getActualResultLabel(playerTotal, bankerTotal){ if(playerTotal > bankerTotal) return '閒'; if(bankerTotal > playerTotal) return '莊'; return '和'; }
+function getWinnerTextClass(result){ if(result === '閒贏') return 'winner-player'; if(result === '莊贏') return 'winner-banker'; return 'winner-tie'; }
+function getHistoryStatus(prediction, actual){ if(actual === '和') return '-'; if(prediction !== '閒' && prediction !== '莊') return '-'; return prediction === actual ? '準' : '失敗'; }
+function isNatural(p2,b2){ return p2 >= 8 || b2 >= 8; }
+function shouldPlayerDraw(p2){ return p2 <= 5; }
+function shouldBankerDraw(b2, playerThird, playerDrew){
+  if(!playerDrew) return b2 <= 5;
+  const pt = getValue(playerThird);
+  if(b2 <= 2) return true; if(b2 === 3) return pt !== 8; if(b2 === 4) return pt >= 2 && pt <= 7; if(b2 === 5) return pt >= 4 && pt <= 7; if(b2 === 6) return pt === 6 || pt === 7; return false;
+}
+
+function evaluateS(allCards){
+  if(allCards.length === 0) return { pick:'待輸入', meta:'分數：-' };
+  let score = 0;
+  allCards.forEach(function(card){ if(card === '8') score += 4; else if(card === '9' || card === 'A') score += 3; else if(card === '2' || card === '3') score += 2; else if(card === '4' || card === '5') score += 1; });
+  return { pick: score > 5 ? '閒' : '莊', meta:'分數：' + score };
+}
+function evaluateM(playerCards, bankerCards, allCards){
+  if(playerCards.length < 2 || bankerCards.length < 2) return { pick:'待輸入', meta:'點差：-\n公牌奇偶：-' };
+  const playerTotalRaw = playerCards.reduce(function(s,c){ return s + getValue(c); },0);
+  const bankerTotalRaw = bankerCards.reduce(function(s,c){ return s + getValue(c); },0);
+  const diff = playerTotalRaw - bankerTotalRaw;
+  const sign1 = diff >= 0 ? '正' : '負';
+  const publicCount = allCards.filter(function(c){ return ['10','J','Q','K'].includes(c); }).length;
+  const sign2 = publicCount % 2 === 0 ? '正' : '負';
+  const finalSign = sign1 === sign2 ? '正' : '負';
+  return { pick: finalSign === '正' ? '閒' : '莊', meta:'點差：' + diff + '\n公牌奇偶：' + (publicCount % 2 === 0 ? '正' : '負') };
+}
+function evaluateTrueCount(allCards, roundNo){
+  if(allCards.length === 0) return { pick:'待輸入', meta:'真數：-\n建議：-' };
+  const decks = getDecksByRound(roundNo);
+  if(!decks) return { pick:'待輸入', meta:'真數：-\n建議：請輸入局數' };
+  const total = allCards.reduce(function(sum, card){ return sum + getTrueCountWeight(card); },0);
+  const trueCount = total / decks;
+  let pick = '觀望'; if(trueCount > 0) pick = '閒'; else if(trueCount < 0) pick = '莊';
+  const absTC = Math.abs(trueCount); let advice = '觀望';
+  if(absTC > 0.6) advice = '下大注'; else if(absTC > 0.5) advice = '小下注'; else if(absTC >= 0.35 && absTC <= 0.5) advice = '看一把'; else if(absTC < 0.25) advice = '下大注'; else advice = '小下注';
+  if(pick === '觀望') advice = '觀望';
+  return { pick:pick, meta:'真數：' + trueCount.toFixed(2) + '\n建議：' + advice };
+}
+function evaluateR(playerCards, bankerCards, allCards){
+  if(playerCards.length < 2 || bankerCards.length < 2) return { pick:'待輸入', meta:'尾數：-\n翻邊：-', flip:false, publicOdd:false };
+  const playerRaw = playerCards.reduce(function(s,c){ return s + getValue(c); },0);
+  const bankerRaw = bankerCards.reduce(function(s,c){ return s + getValue(c); },0);
+  const tail = (playerRaw % 10) + (bankerRaw % 10);
+  const publicCount = allCards.filter(function(c){ return ['10','J','Q','K'].includes(c); }).length;
+  const publicOdd = publicCount % 2 === 1;
+  const flip = allCards.length === 5 || allCards.length === 6 || (allCards.length === 4 && publicCount === 0);
+  let pick = tail === 19 ? '閒' : '莊';
+  if(flip) pick = pick === '閒' ? '莊' : '閒';
+  return { pick:pick, meta:'尾數：' + tail + '\n翻邊：' + (flip ? '是' : '否'), flip:flip, publicOdd:publicOdd };
+}
+function evaluateX(playerTotal, bankerTotal, incomingXPick){
+  if(playerTotal === null || bankerTotal === null) return { pick:'待輸入', meta:'差值：-\n規則：-' };
+  const prevResolved = state.baccarat.resolvedRounds[0] || null;
+  if(playerTotal === bankerTotal){
+    if(prevResolved && prevResolved.actual === '和') return { pick:'-', meta:'連續和局：-' };
+    if(incomingXPick === '閒') return { pick:'莊', meta:'和局反看：本局原預測閒' };
+    if(incomingXPick === '莊') return { pick:'閒', meta:'和局反看：本局原預測莊' };
+    return { pick:'-', meta:'和局但無前預測：-' };
+  }
+  const currentHasZero = playerTotal === 0 || bankerTotal === 0;
+  const prevHasZero = prevResolved ? (prevResolved.playerTotal === 0 || prevResolved.bankerTotal === 0) : false;
+  if(currentHasZero && prevHasZero) return { pick:'-', meta:'0點連開兩把：-' };
+  let diff, pick;
+  if(bankerTotal > playerTotal){ diff = bankerTotal - playerTotal; pick = [2,3,5,8,9].includes(diff) ? '莊' : '閒'; return { pick:pick, meta:'差值：' + diff + '\n規則：莊大減閒' }; }
+  diff = playerTotal - bankerTotal; pick = [2,4,6,8].includes(diff) ? '莊' : '閒'; return { pick:pick, meta:'差值：' + diff + '\n規則：閒大減莊' };
+}
+function evaluateC(stateBase){
+  const basePicks = [stateBase.s.pick, stateBase.m.pick, stateBase.t.pick, stateBase.r.pick, stateBase.x.pick].filter(function(p){ return p === '閒' || p === '莊'; });
+  const playerCount = basePicks.filter(function(p){ return p === '閒'; }).length;
+  const bankerCount = basePicks.filter(function(p){ return p === '莊'; }).length;
+  if(playerCount === bankerCount) return { pick:'觀望', meta:'共振：' + playerCount + '比' + bankerCount + '\n補強：平手' };
+  const side = playerCount > bankerCount ? '閒' : '莊';
+  const p2 = stateBase.p2; const b2 = stateBase.b2; const flip = !!stateBase.r.flip; const publicOdd = !!stateBase.r.publicOdd;
+  let support = 0; let tAligned = false;
+  if(side === '閒'){ if(p2 >= b2) support += 1; if(stateBase.t.pick === '閒'){ support += 1; tAligned = true; } if(!flip) support += 1; }
+  else { if(b2 > p2) support += 1; if(stateBase.t.pick === '莊'){ support += 1; tAligned = true; } if(flip || publicOdd) support += 1; }
+  const pick = support >= 2 ? side : '觀望';
+  return { pick:pick, meta:'共振：' + playerCount + '比' + bankerCount + '\n補強：' + support + '/3｜真數同向：' + (tAligned ? '是' : '否') };
+}
+function getRoundState(){
+  const values = state.baccarat.values;
+  const playerCards = getCards([values[0], values[1], values[4]]);
+  const bankerCards = getCards([values[2], values[3], values[5]]);
+  const allCards = playerCards.concat(bankerCards);
+  const roundNo = getRoundNumber();
+  const p2 = (getValue(values[0]) + getValue(values[1])) % 10;
+  const b2 = (getValue(values[2]) + getValue(values[3])) % 10;
+  const playerThird = values[4] || null; const bankerThird = values[5] || null;
+  let info = roundNo ? '請依序輸入牌面' : '請先輸入局數';
+  if(roundNo && values[0] && values[1] && values[2] && values[3]){
+    if(isNatural(p2, b2)) info = '天牌（不補）';
+    else {
+      info = '';
+      if(playerThird === null) info += shouldPlayerDraw(p2) ? '閒應補牌 ' : '閒不補 ';
+      if(bankerThird === null){ if(playerThird === null && shouldPlayerDraw(p2)) info += '莊待閒第三張後判定'; else info += shouldBankerDraw(b2, playerThird, playerThird !== null) ? '莊應補牌' : '莊不補'; }
+      if(!info.trim()) info = '本局已輸入完成';
+    }
+  }
+  const hasEnough = playerCards.length >= 2 && bankerCards.length >= 2;
+  const playerTotal = hasEnough ? playerCards.reduce(function(s,c){ return s + getValue(c); },0) % 10 : null;
+  const bankerTotal = hasEnough ? bankerCards.reduce(function(s,c){ return s + getValue(c); },0) % 10 : null;
+  const actual = hasEnough ? getActualResultLabel(playerTotal, bankerTotal) : '-';
+  const out = {playerCards, bankerCards, allCards, playerTotal, bankerTotal, actual, info, roundNo, p2, b2};
+  out.s = evaluateS(allCards); out.m = evaluateM(playerCards, bankerCards, allCards); out.t = evaluateTrueCount(allCards, roundNo); out.r = evaluateR(playerCards, bankerCards, allCards); out.x = evaluateX(playerTotal, bankerTotal, state.baccarat.pendingPrediction ? state.baccarat.pendingPrediction.xPick : null); out.c = evaluateC(out);
+  return out;
+}
+function calcRate(key){
+  const valid = state.baccarat.historyData.filter(function(item){ return item.actual !== '和' && item[key + 'Status'] !== '-'; });
+  const hit = valid.filter(function(item){ return item[key + 'Status'] === '準'; }).length; const total = valid.length;
+  return {hit, total, rate: total === 0 ? 0 : Math.round((hit / total) * 100)};
+}
+function formatPredictMeta(sMeta,mMeta,tMeta,rMeta,xMeta,cMeta){
+  const mParts = String(mMeta || '點差：-\n公牌奇偶：-').split('\n'); const tParts = String(tMeta || '真數：-\n建議：-').split('\n'); const rParts = String(rMeta || '尾數：-\n翻邊：-').split('\n'); const xParts = String(xMeta || '差值：-\n規則：-').split('\n'); const cParts = String(cMeta || '共振：-\n補強：-').split('\n');
+  return 'S分數:' + String(sMeta || '-').replace('分數：', '') + '｜M點差:' + (mParts[0] || '點差：-').replace('點差：', '') + '/公牌:' + (mParts[1] || '公牌奇偶：-').replace('公牌奇偶：', '') + '｜T真數:' + (tParts[0] || '真數：-').replace('真數：', '') + '/建議:' + (tParts[1] || '建議：-').replace('建議：', '') + '｜R尾數:' + (rParts[0] || '尾數：-').replace('尾數：', '') + '/翻邊:' + (rParts[1] || '翻邊：-').replace('翻邊：', '') + '｜X差值:' + (xParts[0] || '差值：-').replace('差值：', '') + '/' + (xParts[1] || '規則：-').replace('規則：', '') + '｜C補強:' + (cParts[0] || '共振：-').replace('共振：', '') + '/' + (cParts[1] || '補強：-').replace('補強：', '');
+}
+function renderPredict(roundState){
+  linePredictEl.innerHTML = colorPick('S', roundState.s.pick, 's-label') + '　' + colorPick('M', roundState.m.pick, 'm-label') + '　' + colorPick('T', roundState.t.pick, 't-label') + '　' + colorPick('R', roundState.r.pick, 'r-label') + '　' + colorPick('X', roundState.x.pick, 'x-label') + '　' + colorPick('C', roundState.c.pick, 'c-label');
+  linePredictMetaEl.textContent = formatPredictMeta(roundState.s.meta, roundState.m.meta, roundState.t.meta, roundState.r.meta, roundState.x.meta, roundState.c.meta);
+}
+function renderStats(){
+  const s = calcRate('s'), m = calcRate('m'), t = calcRate('t'), r = calcRate('r'), x = calcRate('x'), c = calcRate('c');
+  const stats = [
+    {cls:'stat-blue', name:'S勝率', rate:s.rate}, {cls:'stat-red', name:'M勝率', rate:m.rate}, {cls:'stat-green', name:'T勝率', rate:t.rate}, {cls:'stat-orange', name:'R勝率', rate:r.rate}, {cls:'stat-teal', name:'X勝率', rate:x.rate}, {cls:'stat-purple', name:'C勝率', rate:c.rate}
+  ];
+  const maxRate = Math.max.apply(null, stats.map(function(item){ return item.rate; }));
+  lineStatsEl.innerHTML = stats.map(function(item){ const bestClass = item.rate === maxRate && maxRate > 0 ? ' best-stat' : ''; return '<div class="stat-box ' + item.cls + ' ' + getStatTierClass(item.rate) + bestClass + '"><div class="stat-name">' + item.name + '</div><div class="stat-rate">' + item.rate + '%</div></div>'; }).join('');
+}
+function calc(){
+  const roundState = getRoundState();
+  playerScoreEl.textContent = '閒 ' + (roundState.playerTotal === null ? 0 : roundState.playerTotal);
+  bankerScoreEl.textContent = '莊 ' + (roundState.bankerTotal === null ? 0 : roundState.bankerTotal);
+  const winnerText = roundState.actual === '閒' ? '閒贏' : roundState.actual === '莊' ? '莊贏' : '和局';
+  winnerTextEl.textContent = winnerText; winnerTextEl.className = 'winner-text ' + getWinnerTextClass(winnerText); detailTextEl.textContent = roundState.info;
+  renderPredict(roundState); renderStats(); renderIntegrated();
+}
+function highlight(){
+  cells.forEach(function(c){ c.classList.remove('active'); });
+  if(state.baccarat.selectedIndex !== null){ const target = document.querySelector("[data-index='" + state.baccarat.selectedIndex + "']"); if(target) target.classList.add('active'); }
+}
+function renderHistory(){
+  const currentState = getRoundState(); const liveItems = []; const pendingPrediction = state.baccarat.pendingPrediction;
+  if(pendingPrediction){
+    const hasAnyCurrentCard = currentState.playerCards.length > 0 || currentState.bankerCards.length > 0;
+    const liveActual = currentState.playerCards.length >= 2 && currentState.bankerCards.length >= 2 ? currentState.actual : '-';
+    const liveSStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.sPick, liveActual);
+    const liveMStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.mPick, liveActual);
+    const liveTStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.tPick, liveActual);
+    const liveRStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.rPick, liveActual);
+    const liveXStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.xPick, liveActual);
+    const liveCStatus = liveActual === '-' ? '-' : getHistoryStatus(pendingPrediction.cPick, liveActual);
+    if(hasAnyCurrentCard){ liveItems.push({sourceRound: pendingPrediction.sourceRound, targetRound: pendingPrediction.targetRound, player: currentState.playerCards.join(' '), banker: currentState.bankerCards.join(' '), actual: liveActual, sPick: pendingPrediction.sPick, mPick: pendingPrediction.mPick, tPick: pendingPrediction.tPick, rPick: pendingPrediction.rPick, xPick: pendingPrediction.xPick, cPick: pendingPrediction.cPick, sStatus: liveSStatus, mStatus: liveMStatus, tStatus: liveTStatus, rStatus: liveRStatus, xStatus: liveXStatus, cStatus: liveCStatus, isLive:true}); }
+  }
+  const allItems = liveItems.concat(state.baccarat.historyData);
+  if(allItems.length === 0){ historyListEl.innerHTML = '<div class="history-empty">目前還沒有歷史紀錄</div>'; return; }
+  historyListEl.innerHTML = allItems.map(function(item){
+    const statusClass = function(s){ return s === '準' ? 'status-hit' : s === '失敗' ? 'status-miss' : 'status-draw'; };
+    const actualClass = item.actual === '和' ? 'draw' : item.actual === '閒' ? 'hit' : item.actual === '莊' ? 'miss' : '';
+    const roundText = item.sourceRound && item.targetRound ? '<div style="font-size:12px;color:#64748b;margin-bottom:4px;">第' + item.sourceRound + '局預測第' + item.targetRound + '局' + (item.isLive ? '（進行中）' : '') + '</div>' : '';
+    const actualText = item.actual === '-' ? '實際：待開' : '實際：' + item.actual;
+    return '<div class="history-item">' + roundText + '<div class="history-top"><div class="history-main"><div class="history-cards"><div><strong>閒牌面：</strong>' + (item.player || '-') + '</div><div><strong>莊牌面：</strong>' + (item.banker || '-') + '</div></div><div class="history-smr"><div><strong>S：</strong>' + item.sPick + '（<span class="' + statusClass(item.sStatus) + '">' + item.sStatus + '</span>）</div><div><strong>M：</strong>' + item.mPick + '（<span class="' + statusClass(item.mStatus) + '">' + item.mStatus + '</span>）</div><div><strong>真數：</strong>' + item.tPick + '（<span class="' + statusClass(item.tStatus) + '">' + item.tStatus + '</span>）</div><div><strong>R：</strong>' + item.rPick + '（<span class="' + statusClass(item.rStatus) + '">' + item.rStatus + '</span>）</div><div><strong>X：</strong>' + item.xPick + '（<span class="' + statusClass(item.xStatus) + '">' + item.xStatus + '</span>）</div><div><strong>C：</strong>' + item.cPick + '（<span class="' + statusClass(item.cStatus) + '">' + item.cStatus + '</span>）</div></div></div><div class="history-result ' + actualClass + '">' + actualText + '</div></div></div>';
+  }).join('');
+}
+function render(){
+  cells.forEach(function(cell){ const idx = parseInt(cell.dataset.index,10); const val = state.baccarat.values[idx]; cell.textContent = val; if(val) cell.classList.remove('empty'); else cell.classList.add('empty'); });
+  roundInputEl.value = state.baccarat.roundInput || '';
+  highlight(); calc(); renderHistory(); renderRedBlue(); saveToStorage();
+}
+function inputCard(card){ if(state.baccarat.selectedIndex !== null){ state.baccarat.values[state.baccarat.selectedIndex] = card; state.baccarat.selectedIndex = null; } else if(state.baccarat.currentStep < 6){ state.baccarat.values[state.baccarat.order[state.baccarat.currentStep]] = card; state.baccarat.currentStep += 1; } render(); }
+function skip(){ if(state.baccarat.selectedIndex !== null){ state.baccarat.values[state.baccarat.selectedIndex] = ''; state.baccarat.selectedIndex = null; render(); return; } if(state.baccarat.currentStep < 6){ state.baccarat.currentStep += 1; render(); } }
+function keepPendingOnScreen(){ const p = state.baccarat.pendingPrediction; if(!p) return; linePredictEl.innerHTML = colorPick('S', p.sPick, 's-label') + '　' + colorPick('M', p.mPick, 'm-label') + '　' + colorPick('T', p.tPick, 't-label') + '　' + colorPick('R', p.rPick, 'r-label') + '　' + colorPick('X', p.xPick, 'x-label') + '　' + colorPick('C', p.cPick, 'c-label'); linePredictMetaEl.textContent = formatPredictMeta(p.sMeta,p.mMeta,p.tMeta,p.rMeta,p.xMeta,p.cMeta); }
+function saveRoundAndNext(){
+  const roundState = getRoundState(); const roundNo = getRoundNumber();
+  if(!roundNo){ alert('請先輸入局數。'); roundInputEl.focus(); return; }
+  if(roundState.playerCards.length < 2 || roundState.bankerCards.length < 2){ alert('請至少先輸入閒家與莊家的前兩張牌。'); return; }
+  if(state.baccarat.pendingPrediction){
+    const p = state.baccarat.pendingPrediction;
+    state.baccarat.historyData.unshift({ sourceRound:p.sourceRound, targetRound:p.targetRound, player:roundState.playerCards.join(' '), banker:roundState.bankerCards.join(' '), actual:roundState.actual, sPick:p.sPick, mPick:p.mPick, tPick:p.tPick, rPick:p.rPick, xPick:p.xPick, cPick:p.cPick, sStatus:getHistoryStatus(p.sPick, roundState.actual), mStatus:getHistoryStatus(p.mPick, roundState.actual), tStatus:getHistoryStatus(p.tPick, roundState.actual), rStatus:getHistoryStatus(p.rPick, roundState.actual), xStatus:getHistoryStatus(p.xPick, roundState.actual), cStatus:getHistoryStatus(p.cPick, roundState.actual) });
+    state.baccarat.resolvedRounds.unshift({ actual:roundState.actual, playerTotal:roundState.playerTotal, bankerTotal:roundState.bankerTotal, xPredUsed:p.xPick });
+    if(state.baccarat.resolvedRounds.length > 20) state.baccarat.resolvedRounds = state.baccarat.resolvedRounds.slice(0,20);
+  }
+  state.baccarat.pendingPrediction = { sourceRound:roundNo, targetRound:roundNo + 1, sPick:String(roundState.s.pick), mPick:String(roundState.m.pick), tPick:String(roundState.t.pick), rPick:String(roundState.r.pick), xPick:String(roundState.x.pick), cPick:String(roundState.c.pick), sMeta:roundState.s.meta, mMeta:roundState.m.meta, tMeta:roundState.t.meta, rMeta:roundState.r.meta, xMeta:roundState.x.meta, cMeta:roundState.c.meta };
+  state.baccarat.roundInput = String(roundNo + 1); state.baccarat.values = ['', '', '', '', '', '']; state.baccarat.currentStep = 0; state.baccarat.selectedIndex = null;
+  playerScoreEl.textContent = '閒 0'; bankerScoreEl.textContent = '莊 0'; winnerTextEl.textContent = '和局'; winnerTextEl.className = 'winner-text winner-tie'; detailTextEl.textContent = '請依序輸入牌面'; render(); keepPendingOnScreen(); saveToStorage();
+}
+function clearBaccaratHistory(){ state.baccarat.historyData = []; state.baccarat.pendingPrediction = null; state.baccarat.resolvedRounds = []; renderHistory(); saveToStorage(); calc(); }
+function clearBoard(){ state.baccarat.values = ['', '', '', '', '', '']; state.baccarat.currentStep = 0; state.baccarat.selectedIndex = null; render(); keepPendingOnScreen(); }
+
+function colorText(v){ if(v === 'R') return '紅'; if(v === 'B') return '藍'; return '-'; }
+function patternToText(pattern){ if(!pattern) return '-'; return pattern.split('').map(colorText).join(''); }
+function getCurrentPattern(){ if(state.redBlue.currentDots.some(function(v){ return !v; })) return null; return state.redBlue.currentDots.join(''); }
+function getPred1(pattern){ if(!pattern) return null; const reds = [...pattern].filter(function(x){ return x === 'R'; }).length; const blues = [...pattern].filter(function(x){ return x === 'B'; }).length; if(reds > blues) return 'R'; if(blues > reds) return 'B'; return null; }
+function getPred2(pattern){ if(!pattern) return null; return state.redBlue.patternMemory[pattern] || null; }
+function getRBMix(pattern){ const p1 = getPred1(pattern), p2 = getPred2(pattern); if(!pattern) return {pick:'-', meta:'三點未完成'}; if(p1 && p2){ if(p1 === p2) return {pick:p1, meta:'RB1/RB2 同向'}; return {pick:'-', meta:'RB1/RB2 分歧'}; } if(p1) return {pick:p1, meta:'只採 RB1'}; if(p2) return {pick:p2, meta:'只採 RB2'}; return {pick:'-', meta:'尚無可用預測'}; }
+function getFinalMix(){
+  const baccaratC = state.baccarat.pendingPrediction ? state.baccarat.pendingPrediction.cPick : null;
+  const rbMix = getRBMix(getCurrentPattern()).pick;
+  let pick = '-'; let meta = '等待資料';
+  if((baccaratC === '閒' || baccaratC === '莊') && (rbMix === 'R' || rbMix === 'B')){
+    // 不硬轉換顏色與莊閒，只做雙系統同時有訊號提示
+    pick = baccaratC + '｜' + colorText(rbMix);
+    meta = 'Baccarat 與 紅藍 同時可參考';
+  } else if (baccaratC === '閒' || baccaratC === '莊') {
+    pick = baccaratC; meta = '目前以 Baccarat C 為主';
+  } else if (rbMix === 'R' || rbMix === 'B') {
+    pick = colorText(rbMix); meta = '目前以 RB 綜合為主';
+  }
+  return {pick, meta};
+}
+function setDot(index, value){ state.redBlue.currentDots[index] = value; saveToStorage(); renderRedBlue(); renderIntegrated(); }
+function clearCurrent(){ state.redBlue.currentDots = [null,null,null]; saveToStorage(); renderRedBlue(); renderIntegrated(); }
+function recordActual(actual){
+  const pattern = getCurrentPattern(); if(!pattern){ alert('請先完成三個點點。'); return; }
+  const pred1 = getPred1(pattern), pred2 = getPred2(pattern), mix = getRBMix(pattern);
+  const row = { round: state.redBlue.history.length + 1, pattern, pred1, pred2, mixPick:mix.pick, actual, result1: pred1 === actual ? 'hit' : 'miss', result2: pred2 ? (pred2 === actual ? 'hit' : 'miss') : 'na', mixResult: mix.pick ? (mix.pick === actual ? 'hit' : 'miss') : 'na', time: Date.now() };
+  state.redBlue.history.unshift(row); state.redBlue.patternMemory[pattern] = actual; state.redBlue.currentDots = [null,null,null]; saveToStorage(); renderRedBlue(); renderIntegrated();
+}
+function clearRBHistory(){ if(!confirm('確定要清空全部歷史與記憶嗎？')) return; state.redBlue = { currentDots:[null,null,null], history:[], patternMemory:{RRR:null, RRB:null, RBR:null, RBB:null, BRR:null, BRB:null, BBR:null, BBB:null} }; saveToStorage(); renderRedBlue(); renderIntegrated(); }
+function calcRBStats(){
+  const stat1Total = state.redBlue.history.length; const stat1Hit = state.redBlue.history.filter(function(x){ return x.result1 === 'hit'; }).length; const stat1Miss = state.redBlue.history.filter(function(x){ return x.result1 === 'miss'; }).length; const stat1Rate = stat1Total ? ((stat1Hit / stat1Total) * 100).toFixed(1) + '%' : '0%';
+  const valid2 = state.redBlue.history.filter(function(x){ return x.pred2; }); const stat2Total = valid2.length; const stat2Hit = valid2.filter(function(x){ return x.result2 === 'hit'; }).length; const stat2Miss = valid2.filter(function(x){ return x.result2 === 'miss'; }).length; const stat2Rate = stat2Total ? ((stat2Hit / stat2Total) * 100).toFixed(1) + '%' : '0%';
+  const validMix = state.redBlue.history.filter(function(x){ return x.mixPick === 'R' || x.mixPick === 'B'; }); const mixTotal = validMix.length; const mixHit = validMix.filter(function(x){ return x.mixResult === 'hit'; }).length; const mixRate = mixTotal ? Math.round((mixHit / mixTotal) * 100) : 0;
+  return {stat1Total, stat1Hit, stat1Miss, stat1Rate, stat2Total, stat2Hit, stat2Miss, stat2Rate, mixRate};
+}
+function resultText(type){ if(type === 'hit') return '<span class="ok">準</span>'; if(type === 'miss') return '<span class="bad">失敗</span>'; return '<span class="na">無紀錄</span>'; }
+function renderDots(){ state.redBlue.currentDots.forEach(function(v,i){ const el = document.getElementById('dotView' + i); el.className = 'dot-view'; if(v === 'R') el.classList.add('red'); if(v === 'B') el.classList.add('blue'); }); }
+function renderPredictions(){
+  const pattern = getCurrentPattern(); document.getElementById('patternText1').textContent = patternToText(pattern); document.getElementById('patternText2').textContent = patternToText(pattern);
+  const pred1 = getPred1(pattern), pred2 = getPred2(pattern);
+  const p1 = document.getElementById('pred1'); const p2 = document.getElementById('pred2'); p1.className = 'result-pill'; p2.className = 'result-pill';
+  if(!pattern){ p1.classList.add('result-none'); p1.textContent = '未完成'; }
+  else if(pred1 === 'R'){ p1.classList.add('result-red'); p1.textContent = '預測：紅'; }
+  else if(pred1 === 'B'){ p1.classList.add('result-blue'); p1.textContent = '預測：藍'; }
+  else { p1.classList.add('result-none'); p1.textContent = '無法判定'; }
+  if(!pattern){ p2.classList.add('result-none'); p2.textContent = '尚無紀錄'; }
+  else if(pred2 === 'R'){ p2.classList.add('result-red'); p2.textContent = '預測：紅'; }
+  else if(pred2 === 'B'){ p2.classList.add('result-blue'); p2.textContent = '預測：藍'; }
+  else { p2.classList.add('result-none'); p2.textContent = '尚無紀錄'; }
+}
+function renderRBStats(){
+  const s = calcRBStats();
+  document.getElementById('stat1Total').textContent = s.stat1Total; document.getElementById('stat1Hit').textContent = s.stat1Hit; document.getElementById('stat1Miss').textContent = s.stat1Miss; document.getElementById('stat1Rate').textContent = s.stat1Rate;
+  document.getElementById('stat2Total').textContent = s.stat2Total; document.getElementById('stat2Hit').textContent = s.stat2Hit; document.getElementById('stat2Miss').textContent = s.stat2Miss; document.getElementById('stat2Rate').textContent = s.stat2Rate;
+  const boxes = [
+    {cls:'stat-rb', name:'RB1勝率', rate: parseInt(s.stat1Rate) || 0, txt:s.stat1Rate},
+    {cls:'stat-rb2', name:'RB2勝率', rate: parseInt(s.stat2Rate) || 0, txt:s.stat2Rate},
+    {cls:'stat-mix', name:'整合勝率', rate: s.mixRate || 0, txt:(s.mixRate || 0) + '%'}
+  ];
+  const maxRate = Math.max.apply(null, boxes.map(function(i){ return i.rate; }));
+  rbLineStatsEl.innerHTML = boxes.map(function(item){ const bestClass = item.rate === maxRate && maxRate > 0 ? ' best-stat' : ''; return '<div class="stat-box ' + item.cls + ' ' + getStatTierClass(item.rate) + bestClass + '"><div class="stat-name">' + item.name + '</div><div class="stat-rate">' + item.txt + '</div></div>'; }).join('');
+}
+function renderMemory(){
+  const order = ['RRR','RRB','RBR','RBB','BRR','BRB','BBR','BBB']; const grid = document.getElementById('memoryGrid'); grid.innerHTML = '';
+  order.forEach(function(p){ const value = state.redBlue.patternMemory[p]; const div = document.createElement('div'); div.className = 'memory-item'; let rightHtml = '<span class="memory-right m-na">無</span>'; if(value === 'R') rightHtml = '<span class="memory-right m-red">紅</span>'; if(value === 'B') rightHtml = '<span class="memory-right m-blue">藍</span>'; div.innerHTML = '<div class="memory-left">' + patternToText(p) + '</div><div class="memory-arrow">→</div>' + rightHtml; grid.appendChild(div); });
+}
+function renderRBHistory(){
+  const box = document.getElementById('rbHistoryList'); box.innerHTML = '';
+  if(state.redBlue.history.length === 0){ box.innerHTML = '<div class="empty-box">目前還沒有紀錄</div>'; return; }
+  state.redBlue.history.forEach(function(row, idx){ const div = document.createElement('div'); div.className = 'history-item-dark'; const actualClass = row.actual === 'R' ? 'red' : 'blue'; const actualText = row.actual === 'R' ? '實際紅' : '實際藍'; div.innerHTML = '<div class="history-top-dark"><div class="history-top-left-dark"><div class="round-badge">第' + (state.redBlue.history.length - idx) + '筆</div><div class="actual-badge ' + actualClass + '">' + actualText + '</div></div><div class="pattern-badge">' + patternToText(row.pattern) + '</div></div><div class="history-predict-grid"><div class="history-predict-box"><div class="hp-title">紀錄1</div><div class="hp-line">預：' + colorText(row.pred1) + ' / ' + resultText(row.result1) + '</div></div><div class="history-predict-box"><div class="hp-title">紀錄2</div><div class="hp-line">' + (row.pred2 ? ('預：' + colorText(row.pred2) + ' / ' + resultText(row.result2)) : '<span class="na">尚無紀錄</span>') + '</div></div></div>'; box.appendChild(div); });
+}
+function renderIntegrated(){
+  const pattern = getCurrentPattern(); const rbMix = getRBMix(pattern); const finalMix = getFinalMix(); const rbStats = calcRBStats();
+  rbLinePredictEl.innerHTML = colorPick('RB1', getPred1(pattern) ? colorText(getPred1(pattern)) : '-', 'rb-label') + '　' + colorPick('RB2', getPred2(pattern) ? colorText(getPred2(pattern)) : '-', 'rb2-label') + '　' + colorPick('RB綜合', rbMix.pick === 'R' || rbMix.pick === 'B' ? colorText(rbMix.pick) : rbMix.pick, 'mix-label') + '　' + colorPick('整合建議', finalMix.pick, 'mix-label');
+  document.getElementById('rbMixPick').textContent = rbMix.pick === 'R' || rbMix.pick === 'B' ? colorText(rbMix.pick) : rbMix.pick;
+  document.getElementById('rbMixPick').className = 't2 ' + (rbMix.pick === 'R' ? 'red-text' : rbMix.pick === 'B' ? 'blue-text' : 'gray-text');
+  document.getElementById('rbMixMeta').textContent = rbMix.meta;
+  document.getElementById('finalMixPick').textContent = finalMix.pick;
+  document.getElementById('finalMixPick').className = 't2 ' + (String(finalMix.pick).includes('閒') ? 'blue-text' : String(finalMix.pick).includes('莊') ? 'red-text' : String(finalMix.pick).includes('紅') ? 'red-text' : String(finalMix.pick).includes('藍') ? 'blue-text' : 'gray-text');
+  document.getElementById('finalMixMeta').textContent = finalMix.meta + '｜RB整合勝率：' + rbStats.mixRate + '%';
+  renderRBStats();
+}
+function renderRedBlue(){ renderDots(); renderPredictions(); renderMemory(); renderRBHistory(); renderIntegrated(); saveToStorage(); }
+
+cells.forEach(function(cell){ cell.addEventListener('click', function(){ state.baccarat.selectedIndex = parseInt(cell.dataset.index, 10); highlight(); saveToStorage(); }); });
+roundInputEl.addEventListener('input', function(){ state.baccarat.roundInput = roundInputEl.value || ''; calc(); keepPendingOnScreen(); renderHistory(); saveToStorage(); });
+cardButtonsEl.addEventListener('click', function(e){ const btn = e.target.closest('[data-card]'); if(!btn) return; inputCard(btn.dataset.card); });
+skipBtn.addEventListener('click', skip); nextBtn.addEventListener('click', saveRoundAndNext); clearBoardBtn.addEventListener('click', clearBoard); clearHistoryBtn.addEventListener('click', clearBaccaratHistory);
+document.querySelectorAll('[data-dot]').forEach(function(btn){ btn.addEventListener('click', function(){ setDot(parseInt(btn.dataset.dot,10), btn.dataset.val); }); });
+document.getElementById('rbClearCurrentBtn').addEventListener('click', clearCurrent); document.getElementById('rbActualRedBtn').addEventListener('click', function(){ recordActual('R'); }); document.getElementById('rbActualBlueBtn').addEventListener('click', function(){ recordActual('B'); }); document.getElementById('rbClearHistoryBtn').addEventListener('click', clearRBHistory);
+
+loadFromStorage(); render(); keepPendingOnScreen();
+})();
+</script>
+</body>
+</html>
